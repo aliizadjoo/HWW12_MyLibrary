@@ -164,7 +164,7 @@ while (true)
                             {
                                 int option = int.Parse(Console.ReadLine());
                                 Console.WriteLine("--------------------");
-                               
+
                                 switch (option)
                                 {
                                     case 1:
@@ -184,21 +184,21 @@ while (true)
                                         {
                                             Console.WriteLine("invalid bookId Select the book ID from the submission list.");
                                         }
-                                        catch(UserNotLoggedInException e) 
+                                        catch (UserNotLoggedInException e)
                                         {
                                             Console.WriteLine(e.Message);
                                         }
-                                        catch(ReviewNotFoundException e) 
+                                        catch (ReviewNotFoundException e)
                                         {
                                             Console.WriteLine(e.Message);
                                         }
-                                        catch(InvalidRatingException e) 
+                                        catch (InvalidRatingException e)
                                         {
                                             Console.WriteLine(e.Message);
                                         }
                                         break;
                                     case 2:
-                                        try 
+                                        try
                                         {
 
                                             Console.WriteLine("Select the desired ReviewId.");
@@ -233,7 +233,7 @@ while (true)
                             {
                                 Console.WriteLine("invalid option please select 1.Edit or 2.Remove ");
                             }
-                            
+
 
                             break;
                         case 6:
@@ -302,6 +302,56 @@ while (true)
                             ListBooksAndCategories();
                             break;
                         case 4:
+                            ShowUnverifiedReviews();
+                            Console.WriteLine("1.Approved 2.Reject");
+                            try
+                            {
+                                int choice = int.Parse(Console.ReadLine());
+                                switch (choice)
+                                {
+                                    case 1:
+                                        Console.WriteLine("Enter the review ID you want to isApproved.");
+                                        try
+                                        {
+                                            int reviewId = int.Parse(Console.ReadLine());
+                                            service.ApproveReview(reviewId);
+                                            Console.WriteLine("review isApproved");
+                                        }
+                                        catch (FormatException)
+                                        {
+                                            Console.WriteLine("invalid review Id ,Please select the ID from the list sent.");
+                                        }
+                                        catch (ReviewNotFoundException e)
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        break;
+
+                                    case 2:
+                                        Console.WriteLine("Enter the review ID you want to Reject.");
+                                        try
+                                        {
+                                            int reviewId = int.Parse(Console.ReadLine());
+                                            service.RejectReview(reviewId);
+                                            Console.WriteLine("review isReject");
+                                        }
+                                        catch (FormatException)
+                                        {
+                                            Console.WriteLine("invalid review Id ,Please select the ID from the list sent.");
+                                        }
+                                        catch (ReviewNotFoundException e)
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        break;
+                                }
+                            }
+                            catch (FormatException)
+                            {
+                                Console.WriteLine("invalid option please enter number 1.Approved 2.Reject.");
+                            }
+                            break;
+                        case 5:
                             CurrentUserSession.Logout();
                             break;
                         default:
@@ -334,7 +384,8 @@ void ShowMenuAdmin()
     Console.WriteLine("1.Add New Category");
     Console.WriteLine("2.Add New Book");
     Console.WriteLine("3.View All Books and Categories");
-    Console.WriteLine("4.LogOut");
+    Console.WriteLine("4.ApproveOrReject Reviews");
+    Console.WriteLine("5.LogOut");
 }
 
 void ListBooksAndCategories()
@@ -351,6 +402,37 @@ void ListBooksAndCategories()
     foreach (var book in booksAndCategories.Books)
     {
         Console.WriteLine(book);
+    }
+    Console.WriteLine("For more details, send the ID of any book you want.");
+    try
+    {
+        int bookId = int.Parse(Console.ReadLine());
+        BookDetailsDTO bookDetailsDTO = service.GetBookDetails(bookId);
+        if (bookDetailsDTO.Reviews.Count == 0)
+        {
+            Console.WriteLine("No user has posted a review for this book.");
+        }
+        else
+        {
+            Console.WriteLine($"Average Rating: {bookDetailsDTO.AvgRating}/5");
+            foreach (var review in bookDetailsDTO.Reviews)
+            {
+                Console.WriteLine($"reviewId:{review.Id} , comment:{review.Comment} , rating : {review.Rating}");
+            }
+        }
+
+    }
+    catch (UserNotLoggedInException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    catch (BookNotFoundException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    catch (FormatException)
+    {
+        Console.WriteLine("invalid bookId Please select the BookID from the list sent. ");
     }
 }
 
@@ -386,4 +468,21 @@ void ShowListMyReview()
 
 }
 
+void ShowUnverifiedReviews()
+{
+    try
+    {
+        List<Review> reviews = service.GetUnverifiedReviews();
+        foreach (var review in reviews)
+        {
+            Console.WriteLine($"reviewId:{review.Id} ,username:{review.User.UserName}," +
+                $"Book title:{review.Book.Title} ");
+        }
+    }
+    catch (UserNotLoggedInException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+
+}
 

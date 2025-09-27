@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HWW12.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,5 +23,6 @@ namespace HWW12.Entities
 
         public DateTime CreatedAt { get; set; }
 
+        public ReviewStatusEnum ReviewStatus { get; set; }
     }
 }

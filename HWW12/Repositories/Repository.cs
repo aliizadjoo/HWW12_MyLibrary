@@ -43,7 +43,7 @@ namespace HWW12.Repositories
 
         public Book? GetBookById(int bookId) 
         {
-            return _context.Books.Include(b=>b.Category).SingleOrDefault(b => b.Id == bookId);
+            return _context.Books.Include(b=>b.Category).Include(b=>b.Reviews).SingleOrDefault(b => b.Id == bookId);
         
         }
 
@@ -121,5 +121,22 @@ namespace HWW12.Repositories
            _context.Reviews.Remove(review);
             _context.SaveChanges();
         }
+
+        public List<Review> GetUnverifiedReviews() 
+        {
+           return _context.Reviews
+                .Include(r=>r.Book)
+                .Include(r=>r.User)
+                .Where(r=>r.ReviewStatus == 0)
+                .ToList();
+          
+        }
+
+        public Review? GetReviewByReviewId(int reviewId)
+        {
+            return _context.Reviews.FirstOrDefault(r => r.Id == reviewId);
+        }
+
+        
     }
 }
