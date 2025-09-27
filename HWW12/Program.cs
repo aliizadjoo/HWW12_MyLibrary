@@ -123,17 +123,130 @@ while (true)
                             }
 
                             break;
-                            case 4:
+                        case 4:
+                            ListBooksAndCategories();
+                            Console.WriteLine("Select the book ID you want to comment on from the list.");
+                            try
+                            {
+                                int bookId = int.Parse(Console.ReadLine());
+                                Console.WriteLine("please enter comment");
+                                string comment = Console.ReadLine();
+                                Console.WriteLine("please enter rating");
+                                int rating = int.Parse(Console.ReadLine());
+                                service.AddReview(bookId, comment, rating);
+                                Console.WriteLine("add review is done");
+                            }
+                            catch (FormatException)
+                            {
+                                Console.WriteLine("invalid bookId  Select the book ID you want to comment on from the list");
+                            }
+                            catch (BookNotFoundException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            catch (BorrowedBookNotFoundException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            catch (DuplicateReviewException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            catch (InvalidRatingException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            break;
+                        case 5:
+                            Console.WriteLine("1.Edit or 2.Remove");
+
+                            try
+                            {
+                                int option = int.Parse(Console.ReadLine());
+                                Console.WriteLine("--------------------");
+                               
+                                switch (option)
+                                {
+                                    case 1:
+                                        try
+                                        {
+                                            Console.WriteLine("Select the desired bookId.");
+                                            ShowListMyReview();
+                                            int bookId = int.Parse(Console.ReadLine());
+                                            Console.WriteLine("please enter comment");
+                                            string commentChanged = Console.ReadLine();
+                                            int ratingChanged = int.Parse(Console.ReadLine());
+                                            service.EditReview(bookId, commentChanged, ratingChanged);
+                                            Console.WriteLine("remove is done");
+
+                                        }
+                                        catch (FormatException)
+                                        {
+                                            Console.WriteLine("invalid bookId Select the book ID from the submission list.");
+                                        }
+                                        catch(UserNotLoggedInException e) 
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        catch(ReviewNotFoundException e) 
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        catch(InvalidRatingException e) 
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        break;
+                                    case 2:
+                                        try 
+                                        {
+
+                                            Console.WriteLine("Select the desired ReviewId.");
+                                            ShowListMyReview();
+                                            int reviewId = int.Parse(Console.ReadLine());
+                                            service.RemoveReview(reviewId);
+                                            Console.WriteLine("remove is done");
+                                        }
+                                        catch (FormatException)
+                                        {
+                                            Console.WriteLine("invalid reviewId Select the review ID from the submission list.");
+                                        }
+                                        catch (UserNotLoggedInException e)
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        catch (ReviewNotFoundException e)
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        catch (InvalidRatingException e)
+                                        {
+                                            Console.WriteLine(e.Message);
+                                        }
+                                        break;
+                                    default:
+                                        Console.WriteLine("invalid option please select 1.Edit or 2.Remove ");
+                                        break;
+                                }
+                            }
+                            catch (FormatException)
+                            {
+                                Console.WriteLine("invalid option please select 1.Edit or 2.Remove ");
+                            }
+                            
+
+                            break;
+                        case 6:
                             CurrentUserSession.Logout();
                             break;
                         default:
-                            Console.WriteLine("please enter 1 or 2 or 3");
+                            Console.WriteLine("Invalid option Please choose a number from the list I sent.");
                             break;
                     }
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("Invalid option in menuUser .");
+                    Console.WriteLine("Invalid option in menuUser.");
                 }
                 break;
 
@@ -148,21 +261,21 @@ while (true)
                         case 1:
                             Console.WriteLine("please enter Genre");
                             string genre = Console.ReadLine();
-                       
-                            try 
+
+                            try
                             {
                                 service.AddCategory(genre);
                                 Console.WriteLine("Category added successfully.");
                             }
-                            catch(UserNotLoggedInException e) 
+                            catch (UserNotLoggedInException e)
                             {
                                 Console.WriteLine(e.Message);
                             }
-                            catch(DuplicateCategoryException e) 
+                            catch (DuplicateCategoryException e)
                             {
                                 Console.WriteLine(e.Message);
-                            }                          
-                           
+                            }
+
                             break;
                         case 2:
                             Console.WriteLine("please enter title");
@@ -180,7 +293,7 @@ while (true)
                             {
                                 Console.WriteLine("invalid category");
                             }
-                            catch (CategoryNotFoundException e) 
+                            catch (CategoryNotFoundException e)
                             {
                                 Console.WriteLine(e.Message);
                             }
@@ -210,8 +323,9 @@ void ShowMenuUser()
     Console.WriteLine("1.View Books and Categories");
     Console.WriteLine("2.Borrow a Book");
     Console.WriteLine("3.View My Borrowed Books");
-    Console.WriteLine("4.LogOut");
-
+    Console.WriteLine("4.Add Review");
+    Console.WriteLine("5.Edit&Remove Review");
+    Console.WriteLine("6.LogOut");
 }
 
 void ShowMenuAdmin()
@@ -231,7 +345,7 @@ void ListBooksAndCategories()
     {
 
         Console.WriteLine($"id:{category.Id}.{category}");
-        
+
     }
 
     foreach (var book in booksAndCategories.Books)
@@ -250,13 +364,24 @@ void ListMyBorrowedBook()
 
 }
 
-void ShowListCategories() 
+void ShowListCategories()
 {
-    List<Category> categories=service.ShowListCategries();
-    
+    List<Category> categories = service.ShowListCategries();
+
     foreach (var category in categories)
     {
         Console.WriteLine($"id:{category.Id}.{category}");
+    }
+
+}
+
+void ShowListMyReview()
+{
+    List<Review> reviews = service.GetMyReviews();
+    foreach (var review in reviews)
+    {
+        Console.WriteLine($"reviewId:{review.Id},BookId:{review.BookId} , title:{review.Book.Title} " +
+            $", comment:{review.Comment} , rating:{review.Rating}");
     }
 
 }

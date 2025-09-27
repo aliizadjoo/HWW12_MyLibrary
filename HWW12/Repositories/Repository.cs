@@ -74,19 +74,52 @@ namespace HWW12.Repositories
             return _context.BorrowedBooks.Where(bb=>bb.User.Id==userId).Include(bb=>bb.Book)
                 .ThenInclude(b=>b.Category).ToList();     
         }
-
+        public BorrowedBook? FindBorrowedBookByUserId(int userId , int bookId) 
+        {
+           return _context.BorrowedBooks
+                .Include(bb=>bb.Book)
+                .FirstOrDefault(bb=>bb.UserId==userId && bb.BookId==bookId);      
+        }
         public void AddCategory(Category category) 
         {
             _context.Categories.Add(category);
             _context.SaveChanges();       
         }
-
-
         public void AddBook(Book book) 
         {
            _context.Books.Add(book);
            _context.SaveChanges();
         }
-      
+
+        public void AddReview(Review review) 
+        {
+            _context.Reviews.Add(review);
+            _context.SaveChanges();
+        }
+        public void UpdateReview(Review review) 
+        {
+           _context.Reviews.Update(review);
+            _context.SaveChanges();
+        }
+        public Review? FindReviewByUserAndBook(int bookId , int userId) 
+        {
+           return _context.Reviews.FirstOrDefault(r=>r.BookId==bookId && r.UserId==userId);
+        }
+
+        public List<Review> GetMyReviewsByUserId(int userId) 
+        {
+           return _context.Reviews.Include(r=>r.Book).Where(r=>r.UserId==userId).ToList(); 
+        }
+
+        public Review? GetReviewByReviewId(int reviewId , int userId) 
+        {
+           return _context.Reviews.FirstOrDefault(r => r.UserId == userId && r.Id == reviewId);
+        }
+
+        public void RemoveReview(Review review) 
+        {
+           _context.Reviews.Remove(review);
+            _context.SaveChanges();
+        }
     }
 }

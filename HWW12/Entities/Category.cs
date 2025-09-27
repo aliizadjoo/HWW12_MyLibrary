@@ -18,6 +18,5 @@ namespace HWW12.Entities
             return $"{Genre}";
         }
 
-
     }
 }

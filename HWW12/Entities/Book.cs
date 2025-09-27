@@ -12,6 +12,10 @@ namespace HWW12.Entities
 
         public string Title { get; set; }
         public Category Category { get; set; }
+        public int CategoryId { get; set; }
+
+        public List<Review> Reviews { get; set; } = [];
+        public List<BorrowedBook> BorrowedBooks { get; set; } = [];
 
         public override string ToString()
         {

@@ -87,6 +87,40 @@ namespace HWW12.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("HWW12.Entities.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews", (string)null);
+                });
+
             modelBuilder.Entity("HWW12.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -95,16 +129,21 @@ namespace HWW12.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("HWW12.Entities.Book", b =>
@@ -137,6 +176,30 @@ namespace HWW12.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HWW12.Entities.Review", b =>
+                {
+                    b.HasOne("HWW12.Entities.Book", "Book")
+                        .WithMany("Reviews")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HWW12.Entities.User", "User")
+                        .WithMany("Reviews")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HWW12.Entities.Book", b =>
+                {
+                    b.Navigation("Reviews");
+                });
+
             modelBuilder.Entity("HWW12.Entities.Category", b =>
                 {
                     b.Navigation("Books");
@@ -145,6 +208,8 @@ namespace HWW12.Migrations
             modelBuilder.Entity("HWW12.Entities.User", b =>
                 {
                     b.Navigation("BorrowedBooks");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,15 +7,24 @@ using System.Threading.Tasks;
 
 namespace HWW12.Entities
 {
-    public class User (string username , string password , RoleEnum role )
+    public class User 
     {
-        public User() : this("default", "default", RoleEnum.User) { }
-        public int Id { get;  set; }
-        public string UserName { get;  set; }=username;
-        private string Password {  get; set; }=password;
-        public RoleEnum Role { get; set; }=role;
+        private User()  
+        { }
+        public User(string username, string password, RoleEnum role)
+        {
+            UserName = username;
+            Password = password;
+            Role = role;
 
-        public List<BorrowedBook> BorrowedBooks { get;  set; } = [];
+        }
+        public int Id { get;  set; }
+        public string UserName { get;  set; }
+        private string Password {  get; set; }
+        public RoleEnum Role { get; set; }
+
+        public List<BorrowedBook> BorrowedBooks { get; set; } = [];
+        public List<Review> Reviews { get;  set; } = [];
 
         public bool CheckPass(string password) 
         {

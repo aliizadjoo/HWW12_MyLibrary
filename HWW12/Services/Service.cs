@@ -7,6 +7,7 @@ using HWW12.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -127,6 +128,82 @@ namespace HWW12.Services
         public List<Category> ShowListCategries() 
         {
             return repository.GetCategories();
+        }
+
+        public void AddReview(int bookId , string comment , int rating) 
+        {
+            Book book=repository.GetBookById(bookId);
+            if (book == null) 
+            {
+                throw new BookNotFoundException("No book with this ID was found.");
+            }
+            BorrowedBook borrowBook =repository.FindBorrowedBookByUserId(CurrentUserSession.LoggedInUser.Id , bookId);
+            if (borrowBook == null) 
+            {
+                throw new BorrowedBookNotFoundException("You can only comment on books you have borrowed.");
+            }
+            Review reviewFromDb=repository.FindReviewByUserAndBook(bookId , CurrentUserSession.LoggedInUser.Id);
+            if (reviewFromDb != null) 
+            {
+                throw new DuplicateReviewException("You have already commented on this book.");
+            }
+            if (rating>5||rating<1) 
+            {
+                throw new InvalidRatingException("Rating must be between 1 and 5.");
+            }
+            var review = new Review 
+            {
+              Comment = comment,
+              Rating = rating,
+              CreatedAt = DateTime.Now,
+              UserId = CurrentUserSession.LoggedInUser.Id,
+              BookId= bookId
+            };
+           repository.AddReview(review);
+        }
+
+        public List<Review> GetMyReviews() 
+        {
+            if (CurrentUserSession.LoggedInUser==null)
+            {
+                throw new UserNotLoggedInException("User is not logged in.");
+            }
+            return repository.GetMyReviewsByUserId(CurrentUserSession.LoggedInUser.Id);
+        }
+
+        public void EditReview(int bookId , string comment , int rating) 
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+              throw new UserNotLoggedInException("User is not logged in.");
+            }
+            Review review= repository.FindReviewByUserAndBook(bookId , CurrentUserSession.LoggedInUser.Id);
+            if (review == null) 
+            {
+                throw new ReviewNotFoundException("You have not submitted a review for this book.");
+            }
+            if (rating > 5 || rating < 1)
+            {
+                throw new InvalidRatingException("Rating must be between 1 and 5.");
+            }
+            review.Comment = comment;
+            review.Rating = rating;
+            repository.UpdateReview(review);   
+        }
+
+        public void RemoveReview(int reviewId) 
+        {
+
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("User is not logged in.");
+            }
+            Review? review= repository.GetReviewByReviewId(reviewId, CurrentUserSession.LoggedInUser.Id);
+            if (review ==null)
+            {
+                throw new ReviewNotFoundException("You have not submitted a review for this book");
+            }
+            repository.RemoveReview(review);
         }
     }
 }
