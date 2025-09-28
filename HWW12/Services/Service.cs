@@ -254,6 +254,7 @@ namespace HWW12.Services
             List<Review> reviewsIsApproved = book.Reviews.Where(r => r.ReviewStatus== ReviewStatusEnum.Approved).ToList();
             BookDetailsDTO bookDetailsDTO = new BookDetailsDTO();
             bookDetailsDTO.Reviews = reviewsIsApproved;
+            bookDetailsDTO.WishlistCount = repository.GetWishlistCountByBookId(bookId);
             if (reviewsIsApproved.Count==0)
             {
                 
@@ -269,6 +270,98 @@ namespace HWW12.Services
             }
             
             return bookDetailsDTO;
+        }
+
+        public void AddWishlist(int bookId) 
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("You are not logged in..");
+            }
+            Wishlist? wishlist=repository.GetWishlistByBookIdAndUserId(bookId, CurrentUserSession.LoggedInUser.Id);
+            if (wishlist!=null)
+            {
+                throw new WishlistAlreadyExistsException("wishlist with this ID has already been added.");
+            }
+            var newWishlist = new Wishlist
+            {
+                BookId=bookId,
+                UserId=CurrentUserSession.LoggedInUser.Id,
+                CreatedAt=DateTime.Now,
+                
+            };
+            repository.AddWishlist(newWishlist);
+        }
+
+        public List<Wishlist> GetWishlist() 
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("You are not logged in..");
+            }
+
+           return repository.GetWishlists(CurrentUserSession.LoggedInUser.Id);
+        }
+
+        public void RemoveWishlist(int wishlistId) 
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("You are not logged in..");
+            }
+            Wishlist? wishlist=repository.GetWishlistByUserIdAndwishlistId(wishlistId,CurrentUserSession.LoggedInUser.Id);
+            if (wishlist == null) 
+            {
+                throw new WishlistNotFoundException("You don't have such a wishlist.");
+            }
+            repository.RemoveWishlist(wishlist);
+        }
+
+        public void ReturnBook(int borrowedBookId) 
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("You are not logged in..");
+            }
+            BorrowedBook? borrowBook=repository.FindBorrowedBookByUserId(borrowedBookId, CurrentUserSession.LoggedInUser.Id);
+            if (borrowBook==null)
+            {
+                throw new BorrowedBookNotFoundException("You have borrowed a book with this ID.");
+            }
+            TimeSpan duration = DateTime.Now- borrowBook.BorrowDate;        
+            if (duration.Days>7) 
+            {
+                CurrentUserSession.LoggedInUser.AddPenaltyAmount(duration.Days);
+                repository.UpdateUser(CurrentUserSession.LoggedInUser);
+            }           
+            repository.RemoveBorrowedBook(borrowBook);
+        }
+
+        public double ShowMyPenaltyAmount()
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("You are not logged in..");
+            }
+
+            return CurrentUserSession.LoggedInUser.PenaltyAmount;
+        }
+        public double ShowPenaltyAmountByUserId(int userId) 
+        {
+            if (CurrentUserSession.LoggedInUser == null)
+            {
+                throw new UserNotLoggedInException("You are not logged in..");
+            }
+            User user=repository.GetUserById(userId);
+            if (user==null)
+            {
+                throw new UsernoFoundException("User with this ID does not exist.");
+            }
+            return user.PenaltyAmount;
+        }
+        public List<User> GetUsers() 
+        {
+          return repository.GetAllUsers();
         }
     }
 }

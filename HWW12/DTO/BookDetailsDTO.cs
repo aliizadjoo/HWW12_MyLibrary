@@ -11,5 +11,7 @@ namespace HWW12.DTO
     {
         public List<Review> Reviews { get; set; } = [];
         public double AvgRating { get; set; }
+
+        public int WishlistCount { get; set; }
     }
 }

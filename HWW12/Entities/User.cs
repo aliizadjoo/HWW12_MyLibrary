@@ -1,4 +1,5 @@
 ﻿using HWW12.Enums;
+using HWW12.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,12 +24,18 @@ namespace HWW12.Entities
         private string Password {  get; set; }
         public RoleEnum Role { get; set; }
 
+        public double PenaltyAmount { get; set; }
         public List<BorrowedBook> BorrowedBooks { get; set; } = [];
         public List<Review> Reviews { get;  set; } = [];
-
+        public List<Wishlist> Wishlist { get; set; } = [];
         public bool CheckPass(string password) 
         {
             return Password == password;                         
+        }
+
+        public void AddPenaltyAmount(int durationDays) 
+        {
+            PenaltyAmount = PenaltyAmount + ((durationDays - 7) * 10000);
         }
     }
 }

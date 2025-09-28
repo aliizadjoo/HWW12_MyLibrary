@@ -16,7 +16,7 @@ namespace HWW12.Entities
 
         public List<Review> Reviews { get; set; } = [];
         public List<BorrowedBook> BorrowedBooks { get; set; } = [];
-
+        public List<Wishlist> Wishlist { get; set; } = [];
         public override string ToString()
         {
             return $"{Id}.{Title} , {Category}";

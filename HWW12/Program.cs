@@ -237,6 +237,79 @@ while (true)
 
                             break;
                         case 6:
+                            ListBooksAndCategories();
+                            Console.WriteLine("Enter the ID of the book you want to add to your wishlist.");
+                            try
+                            {
+                                int bookId = int.Parse(Console.ReadLine());
+                                service.AddWishlist(bookId);
+                                Console.WriteLine("add wishlist is done");
+                            }
+                            catch (FormatException)
+                            {
+                               Console.WriteLine("invalid book id , Select the book ID from the list sent.");
+                            }
+                            catch(UserNotLoggedInException e) 
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            catch (WishlistAlreadyExistsException e) 
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            break;
+                        case 7:
+                          ShowMyWishlist();
+                          break;
+                        case 8:
+                        ShowMyWishlist();
+                        Console.WriteLine("Enter the ID of the book you want to remove from your wishlist.");
+                            try 
+                            {
+                                int wishlistId = int.Parse(Console.ReadLine());
+                                service.RemoveWishlist(wishlistId);
+                                Console.WriteLine("remove is done");
+                            }
+                            catch (FormatException ) 
+                            {
+                                Console.WriteLine("invalid wishlistId Select the wishlistId from the list sent.");
+                            }
+                            catch (UserNotLoggedInException e) 
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            catch (WishlistNotFoundException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+
+                            break;
+                        case 9:
+                        ListMyBorrowedBook();
+                        Console.WriteLine("Enter the ID of the borrowed book you want to return.");
+                            try 
+                            {
+                              int borrowedBookId = int.Parse(Console.ReadLine());
+                              service.ReturnBook(borrowedBookId);                               
+                              Console.WriteLine("return book is done");
+                            }
+                            catch (FormatException) 
+                            {
+                                Console.WriteLine("invalid BorrowedBookId");
+                            }
+                            catch(UserNotLoggedInException e) 
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                            catch(BorrowedBookNotFoundException r) 
+                            {
+                                Console.WriteLine(r.Message);
+                            }
+                            break;
+                        case 10:
+                         ShowMyPenaltyAmount();
+                         break;
+                        case 11:
                             CurrentUserSession.Logout();
                             break;
                         default:
@@ -352,6 +425,10 @@ while (true)
                             }
                             break;
                         case 5:
+
+
+                           break;
+                        case 6:
                             CurrentUserSession.Logout();
                             break;
                         default:
@@ -375,7 +452,12 @@ void ShowMenuUser()
     Console.WriteLine("3.View My Borrowed Books");
     Console.WriteLine("4.Add Review");
     Console.WriteLine("5.Edit&Remove Review");
-    Console.WriteLine("6.LogOut");
+    Console.WriteLine("6.Add wishlist");
+    Console.WriteLine("7.Show My Wishlist");
+    Console.WriteLine("8.remove wishlist");
+    Console.WriteLine("9.return Book");
+    Console.WriteLine("10.ShowMyPenaltyAmount");
+    Console.WriteLine("11.LogOut");
 }
 
 void ShowMenuAdmin()
@@ -385,7 +467,8 @@ void ShowMenuAdmin()
     Console.WriteLine("2.Add New Book");
     Console.WriteLine("3.View All Books and Categories");
     Console.WriteLine("4.ApproveOrReject Reviews");
-    Console.WriteLine("5.LogOut");
+    Console.WriteLine("5.ShowPenaltyUser");
+    Console.WriteLine("6.LogOut");
 }
 
 void ListBooksAndCategories()
@@ -414,10 +497,12 @@ void ListBooksAndCategories()
         }
         else
         {
-            Console.WriteLine($"Average Rating: {bookDetailsDTO.AvgRating}/5");
+            Console.WriteLine($"Average Rating: {bookDetailsDTO.AvgRating}/5 , WishlistCount:{bookDetailsDTO.WishlistCount}");
+   
             foreach (var review in bookDetailsDTO.Reviews)
             {
-                Console.WriteLine($"reviewId:{review.Id} , comment:{review.Comment} , rating : {review.Rating}");
+                Console.WriteLine($"reviewId:{review.Id} , comment:{review.Comment} , rating : {review.Rating} ");
+
             }
         }
 
@@ -486,3 +571,45 @@ void ShowUnverifiedReviews()
 
 }
 
+void ShowMyWishlist() 
+{
+  List<Wishlist> wishlist= service.GetWishlist();
+    foreach (var item in wishlist)
+    {
+        Console.WriteLine($"wishlistId:{item.Id} , bookTitle:{item.Book.Title} , CreatedAt :{item.CreatedAt}");
+    }
+
+}
+
+void ShowMyPenaltyAmount() 
+{
+  double penaltyAmount = service.ShowMyPenaltyAmount();
+  Console.WriteLine(penaltyAmount);
+
+}
+
+void ShowAllUsers() 
+{
+    List<User> users=service.GetUsers();
+    foreach (var user in users) 
+    {
+        Console.WriteLine($"userID:{user.Id} ,username:{user.UserName} ");
+    }
+}
+
+void ShowPenaltyUser() 
+{
+    ShowAllUsers();
+    Console.WriteLine("please enter userId");
+    try 
+    {
+        int userId = int.Parse(Console.ReadLine());
+
+    }
+    catch (FormatException) 
+    {
+       Console.WriteLine("invalid user id Select from the list provided.");
+    }
+    
+
+}

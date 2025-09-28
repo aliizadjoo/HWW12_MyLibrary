@@ -35,6 +35,19 @@ namespace HWW12.Repositories
 
         }
 
+        public User? GetUserById(int userId) 
+        {
+          return _context.Users.FirstOrDefault(u=>u.Id == userId);
+        }
+        public List<User> GetAllUsers()
+        {
+            return _context.Users.ToList();
+        }
+        public void UpdateUser(User user) 
+        {
+          _context.Users.Update(user);
+            _context.SaveChanges();
+        }
         public List<Book> GetBooks() 
         {
               return _context.Books.Include(b=>b.Category).ToList();
@@ -79,6 +92,12 @@ namespace HWW12.Repositories
            return _context.BorrowedBooks
                 .Include(bb=>bb.Book)
                 .FirstOrDefault(bb=>bb.UserId==userId && bb.BookId==bookId);      
+        }
+
+        public void RemoveBorrowedBook(BorrowedBook borrowedBook) 
+        {
+           _context.BorrowedBooks.Remove(borrowedBook);
+            _context.SaveChanges();
         }
         public void AddCategory(Category category) 
         {
@@ -137,6 +156,49 @@ namespace HWW12.Repositories
             return _context.Reviews.FirstOrDefault(r => r.Id == reviewId);
         }
 
+        public void AddWishlist(Wishlist wishlist) 
+        {
+           _context.Wishlist.Add(wishlist);
+            _context.SaveChanges();
+        }
+
+        public Wishlist? GetWishlistByBookIdAndUserId(int bookId,int userId) 
+        {
+           return _context.Wishlist
+                .Include(w=>w.Book)
+                .Include(w=>w.User)
+                .FirstOrDefault(w=>w.BookId==bookId && w.UserId==userId);
+        }
+
+        public Wishlist? GetWishlistByUserIdAndwishlistId(int wishlistId, int userId)
+        {
+            return _context.Wishlist
+                 .Include(w => w.Book)
+                 .Include(w => w.User)
+                 .FirstOrDefault(w => w.UserId == userId && w.Id==wishlistId);
+        }
+
+        public List<Wishlist> GetWishlists(int userId) 
+        {
+          return _context.Wishlist
+                .Include(w=>w.Book)
+                .Include(w=>w.User)
+                .Where(w=>w.UserId==userId)
+                .ToList();
+        }
+
+        public void RemoveWishlist(Wishlist wishlist) 
+        {
+            _context.Wishlist.Remove(wishlist);
+            _context.SaveChanges();
         
+        }
+
+        public int GetWishlistCountByBookId(int bookId) 
+        {
+          return _context.Wishlist.Count(w=>w.BookId== bookId);
+        }
+
+       
     }
 }

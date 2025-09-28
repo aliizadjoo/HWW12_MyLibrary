@@ -17,6 +17,8 @@ namespace HWW12.DataAccess
         public DbSet<Review> Reviews { get; set; }
         public DbSet<BorrowedBook> BorrowedBooks { get; set; }
 
+        public DbSet<Wishlist> Wishlist { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = "Server=ALI\\SQLEXPRESS;Database=MyLibraryCww12parta;Integrated Security=True;TrustServerCertificate=True;";
@@ -90,6 +92,20 @@ namespace HWW12.DataAccess
 
 
             });
+
+            modelBuilder.Entity<Wishlist>(entity =>
+            {
+                entity.HasKey(w=>w.Id);
+                entity.ToTable("Wishlist");
+                entity.HasOne(w => w.Book)
+                .WithMany(b=>b.Wishlist).HasForeignKey(w=>w.BookId).IsRequired();
+               
+                entity.HasOne(w => w.User)
+                .WithMany(u => u.Wishlist).HasForeignKey(w => w.UserId).IsRequired();
+
+            });
+            
+
 
 
 
